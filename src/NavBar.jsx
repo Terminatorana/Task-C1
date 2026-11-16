@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { getCurrentUser, logoutUser } from "./authService";
+import { observeCurrentUser, logoutUser } from "./authService";
 import "./NavBar.css";
 
 export default function NavBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [search, setSearch] = useState("");
-  const user = getCurrentUser();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => observeCurrentUser(setUser), []);
 
   const handleSearch = (event) => {
     event.preventDefault();
@@ -17,13 +19,13 @@ export default function NavBar() {
 
   const handleLogout = async () => {
     await logoutUser();
+    setUser(null);
     navigate("/login");
   };
 
   return (
     <header className="navbar">
       <Link to="/" className="navbar-brand">DEV@Deakin</Link>
-
       <form className="navbar-search-form" onSubmit={handleSearch} role="search">
         <input
           className="navbar-search"
@@ -35,7 +37,6 @@ export default function NavBar() {
         />
         <button type="submit" className="navbar-search-button">Search</button>
       </form>
-
       <nav className="navbar-links">
         <Link to="/profile">Profile</Link>
         <Link to="/post">Post</Link>
